@@ -3,7 +3,7 @@
 $host = "localhost";
 $user = "root";
 $pass = "";
-$db   = "sim_futsal"; // ganti sesuai nama database
+$db   = "sistem_futsal"; // ganti sesuai nama database
 
 $conn = mysqli_connect($host, $user, $pass, $db);
 if (!$conn) {

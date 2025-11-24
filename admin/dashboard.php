@@ -1,296 +1,208 @@
 <?php
+// admin/dashboard.php (final)
 session_start();
 include '../includes/db.php';
-
-// Cek login
-if (!isset($_SESSION['admin_logged'])) {
+if (!isset($_SESSION['admin_logged']) || $_SESSION['admin_logged'] !== true) {
     header("Location: login.php");
     exit;
 }
 
-// Aksi CRUD status booking
+// handle actions (validate/pending/delete)
 if (isset($_GET['action']) && isset($_GET['id'])) {
     $id = intval($_GET['id']);
-    if ($_GET['action'] == "valid") {
-        mysqli_query($conn, "UPDATE booking SET status='valid' WHERE id=$id");
-    } elseif ($_GET['action'] == "pending") {
-        mysqli_query($conn, "UPDATE booking SET status='pending' WHERE id=$id");
-    } elseif ($_GET['action'] == "delete") {
-        mysqli_query($conn, "DELETE FROM booking WHERE id=$id");
+    if ($_GET['action'] === 'valid') {
+        mysqli_query($conn, "UPDATE booking SET status='valid' WHERE id = $id");
+        // add to jadwal_terblokir (optional)
+        $b = mysqli_fetch_assoc(mysqli_query($conn, "SELECT lapangan_id, tanggal_booking, jam_mulai, jam_selesai FROM booking WHERE id=$id"));
+        if ($b) {
+            $safe_lap = intval($b['lapangan_id']);
+            $safe_tgl = mysqli_real_escape_string($conn, $b['tanggal_booking']);
+            $safe_jm = mysqli_real_escape_string($conn, $b['jam_mulai']);
+            $safe_js = mysqli_real_escape_string($conn, $b['jam_selesai']);
+            mysqli_query($conn, "INSERT INTO jadwal_terblokir (lapangan_id, tanggal, jam_mulai, jam_selesai, booking_id) VALUES ($safe_lap, '$safe_tgl', '$safe_jm', '$safe_js', $id)");
+        }
+    } elseif ($_GET['action'] === 'pending') {
+        mysqli_query($conn, "UPDATE booking SET status='pending' WHERE id = $id");
+    } elseif ($_GET['action'] === 'delete') {
+        // optionally delete bukti file
+        $bk = mysqli_fetch_assoc(mysqli_query($conn, "SELECT bukti_pembayaran FROM booking WHERE id=$id"));
+        if ($bk && !empty($bk['bukti_pembayaran'])) {
+            $f = __DIR__ . '/../' . $bk['bukti_pembayaran'];
+            if (file_exists($f)) @unlink($f);
+        }
+        mysqli_query($conn, "DELETE FROM booking WHERE id = $id");
+        mysqli_query($conn, "DELETE FROM jadwal_terblokir WHERE booking_id = $id");
     }
     header("Location: dashboard.php");
     exit;
 }
 
-// Statistik
-$tot_pending = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS c FROM booking WHERE status='pending'"))['c'];
-$tot_valid   = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS c FROM booking WHERE status='valid'"))['c'];
-$tot_all     = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS c FROM booking"))['c'];
+// filters
+$statusFilter = isset($_GET['status']) ? $_GET['status'] : 'all';
+$where = "";
+if (in_array($statusFilter, ['pending', 'valid', 'ditolak'])) {
+    $where = "WHERE b.status = '" . mysqli_real_escape_string($conn, $statusFilter) . "'";
+}
 
-// Booking terbaru
-$res = mysqli_query($conn, "
-    SELECT b.*, l.nama_lapangan 
-    FROM booking b 
-    LEFT JOIN lapangan l ON b.lapangan_id = l.id 
-    ORDER BY b.created_at DESC
-");
+$tot_pending = intval(mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS c FROM booking WHERE status='pending'"))['c']);
+$tot_valid   = intval(mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS c FROM booking WHERE status='valid'"))['c']);
+$tot_all     = intval(mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS c FROM booking"))['c']);
+
+$sql = "SELECT b.*, l.nama_lapangan FROM booking b LEFT JOIN lapangan l ON b.lapangan_id = l.id $where ORDER BY b.created_at DESC";
+$res = mysqli_query($conn, $sql);
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard Admin - Futsal Booking</title>
+    <meta charset="utf-8">
+    <title>Admin Dashboard - Futsal Booking</title>
+    <link rel="stylesheet" href="assets_admin/style.css">
     <style>
-        body {
-            margin: 0;
-            background: #f4f6f9;
-            font-family: Arial, sans-serif;
-            display: flex;
+        /* small custom overrides for table actions */
+        .action-group a {
+            margin-right: 6px;
+            display: inline-block;
+            margin-bottom: 4px;
         }
 
-        /* Sidebar */
-        .sidebar {
-            width: 230px;
-            background: #111827;
-            color: white;
-            height: 100vh;
-            padding: 20px;
-            position: fixed;
-        }
-
-        .sidebar h2 {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .sidebar a {
-            display: block;
-            padding: 12px;
-            text-decoration: none;
-            color: white;
-            margin-bottom: 8px;
-            border-radius: 6px;
-        }
-
-        .sidebar a:hover {
-            background: #1f2937;
-        }
-
-        /* main content */
-        .main {
-            margin-left: 250px;
-            padding: 20px;
-            width: 100%;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .logout-btn {
-            background: #dc2626;
-            padding: 8px 15px;
-            color: white;
-            border-radius: 6px;
-            text-decoration: none;
-        }
-
-        .stats {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 200px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        .card h3 {
-            margin: 0;
-        }
-
-        table {
-            width: 100%;
-            background: white;
-            border-collapse: collapse;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        th,
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background: #f0f0f0;
-        }
-
-        .btn {
-            padding: 6px 12px;
+        .preview-btn {
+            padding: 6px 10px;
             border-radius: 4px;
+            background: #0ea5e9;
+            color: #fff;
             text-decoration: none;
-            color: white;
-            margin-right: 4px;
+        }
+
+        .badge {
+            padding: 6px 8px;
+            border-radius: 6px;
+            color: #fff;
+            font-weight: 600;
             font-size: 13px;
         }
 
-        .btn-valid {
-            background: #16a34a;
+        .badge-pending {
+            background: #f59e0b;
         }
 
-        .btn-pending {
-            background: #ca8a04;
+        .badge-valid {
+            background: #10b981;
         }
 
-        .btn-del {
-            background: #dc2626;
+        .badge-reject {
+            background: #ef4444;
         }
 
-        .btn-wa {
-            background: #0ea5e9;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            max-width: 90%;
-            text-align: center;
-        }
-
-        .modal-content img {
-            max-width: 500px;
-            border-radius: 8px;
-        }
-
-        .close {
-            background: red;
-            color: white;
-            padding: 6px 12px;
-            margin-top: 10px;
-            cursor: pointer;
-            border: none;
-            border-radius: 6px;
+        .filter-links a {
+            margin-right: 8px;
+            text-decoration: none;
+            color: #0369a1;
         }
     </style>
 </head>
 
 <body>
-
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <h2>Admin Panel</h2>
-        <a href="dashboard.php">Dashboard</a>
-        <a href="../index.php">Lihat Website</a>
-        <a href="logout.php" class="logout-btn" style="margin-top: 30px;">Logout</a>
+    <div class="admin-top">
+        <div class="brand">Admin Panel</div>
+        <div class="actions">
+            <a href="../index.php" class="btn-sm">Lihat Website</a>
+            <a href="lapangan_list.php" class="btn-sm">Lapangan</a>
+            <a href="logout.php" class="btn-sm" style="background:#dc2626;color:white;">Logout</a>
+        </div>
     </div>
 
-    <div class="main">
-
-        <div class="header">
-            <h1>Dashboard Admin</h1>
-        </div>
-
+    <div class="admin-container">
+        <h1>Dashboard</h1>
         <div class="stats">
-            <div class="card">
-                <h3>Pending</h3>
-                <p><?= $tot_pending ?></p>
-            </div>
-            <div class="card">
-                <h3>Valid</h3>
-                <p><?= $tot_valid ?></p>
-            </div>
-            <div class="card">
-                <h3>Total Booking</h3>
-                <p><?= $tot_all ?></p>
+            <div class="stat">Pending<br><strong><?= $tot_pending ?></strong></div>
+            <div class="stat">Valid<br><strong><?= $tot_valid ?></strong></div>
+            <div class="stat">Total Booking<br><strong><?= $tot_all ?></strong></div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:12px 0;">
+            <h2>Daftar Booking</h2>
+            <div class="filter-links">
+                <a href="dashboard.php?status=all">Semua</a> |
+                <a href="dashboard.php?status=pending">Pending</a> |
+                <a href="dashboard.php?status=valid">Valid</a> |
+                <a href="dashboard.php?status=ditolak">Ditolak</a>
             </div>
         </div>
 
-        <h2>Data Booking</h2>
-        <table>
-            <tr>
-                <th>#</th>
-                <th>Nama</th>
-                <th>Lapangan</th>
-                <th>Tanggal</th>
-                <th>Jam</th>
-                <th>Status</th>
-                <th>Bukti</th>
-                <th>Aksi</th>
-            </tr>
-
-            <?php $i = 1;
-            while ($r = mysqli_fetch_assoc($res)): ?>
+        <table class="table">
+            <thead>
                 <tr>
-                    <td><?= $i++ ?></td>
-                    <td><?= $r['nama_pemesan'] ?></td>
-                    <td><?= $r['nama_lapangan'] ?></td>
-                    <td><?= $r['tanggal_booking'] ?></td>
-                    <td><?= $r['jam_mulai'] ?> - <?= $r['jam_selesai'] ?></td>
-                    <td><?= $r['status'] ?></td>
-
-                    <!-- Bukti popup -->
-                    <td>
-                        <?php if ($r['bukti_transfer']): ?>
-                            <button onclick="openModal('uploads/<?= $r['bukti_transfer'] ?>')">Lihat</button>
-                        <?php else: ?>
-                            -
-                        <?php endif; ?>
-                    </td>
-
-                    <td>
-                        <a class="btn btn-valid" href="?action=valid&id=<?= $r['id'] ?>">Valid</a>
-                        <a class="btn btn-pending" href="?action=pending&id=<?= $r['id'] ?>">Pending</a>
-                        <a class="btn btn-del" onclick="return confirm('Hapus booking?')" href="?action=delete&id=<?= $r['id'] ?>">Delete</a>
-
-                        <!-- WhatsApp Manual -->
-                        <a class="btn btn-wa" target="_blank" href="https://wa.me/<?= $r['no_hp'] ?>">WA</a>
-                    </td>
+                    <th>#</th>
+                    <th>Nama</th>
+                    <th>WA</th>
+                    <th>Lapangan</th>
+                    <th>Tanggal</th>
+                    <th>Jam</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Bukti</th>
+                    <th>Aksi</th>
                 </tr>
-            <?php endwhile; ?>
-        </table>
+            </thead>
+            <tbody>
+                <?php $i = 1;
+                while ($r = mysqli_fetch_assoc($res)): ?>
+                    <tr>
+                        <td><?= $i++ ?></td>
+                        <td><?= htmlspecialchars($r['nama_pemesan']) ?></td>
+                        <td><?= htmlspecialchars($r['nomor_wa']) ?></td>
+                        <td><?= htmlspecialchars($r['nama_lapangan']) ?></td>
+                        <td><?= htmlspecialchars($r['tanggal_booking']) ?></td>
+                        <td><?= htmlspecialchars($r['jam_mulai'] . ' - ' . $r['jam_selesai']) ?></td>
+                        <td>Rp <?= number_format($r['total_harga']) ?></td>
+                        <td>
+                            <?php if ($r['status'] == 'pending'): ?>
+                                <span class="badge badge-pending">Pending</span>
+                            <?php elseif ($r['status'] == 'valid'): ?>
+                                <span class="badge badge-valid">Valid</span>
+                            <?php else: ?>
+                                <span class="badge badge-reject"><?= htmlspecialchars($r['status']) ?></span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if (!empty($r['bukti_pembayaran']) && file_exists(__DIR__ . '/../' . $r['bukti_pembayaran'])): ?>
+                                <a class="preview-btn" onclick="openModal('../<?= $r['bukti_pembayaran'] ?>')">Lihat</a>
+                            <?php else: echo '-';
+                            endif; ?>
+                        </td>
+                        <td class="action-group">
+                            <a class="btn-sm" href="dashboard.php?action=valid&id=<?= $r['id'] ?>" onclick="return confirm('Setujui booking?')">Valid</a>
+                            <a class="btn-sm" href="dashboard.php?action=pending&id=<?= $r['id'] ?>">Pending</a>
+                            <a class="btn-sm" style="background:#dc2626;color:#fff" href="dashboard.php?action=delete&id=<?= $r['id'] ?>" onclick="return confirm('Hapus booking ini?')">Delete</a>
 
+                            <!-- WA link: nomor diharapkan format 628xxxxxxxx -->
+                            <a class="btn-sm" style="background:#0ea5e9;color:#fff" target="_blank" href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $r['nomor_wa']) ?>?text=Halo%20<?= rawurlencode($r['nama_pemesan']) ?>%2C%20mengenai%20booking%20anda%20pada%20<?= rawurlencode($r['tanggal_booking']) ?>%20<?= rawurlencode($r['jam_mulai'] . '-' . $r['jam_selesai']) ?>">WA</a>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
     </div>
 
-    <!-- Modal Pop-up -->
+    <!-- Modal -->
     <div id="modal" class="modal" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <img id="modal-img">
-            <button class="close" onclick="closeModal()">Tutup</button>
+            <img id="modal-img" src="" alt="Bukti">
+            <div style="margin-top:10px;">
+                <button class="close" onclick="closeModal()">Tutup</button>
+            </div>
         </div>
     </div>
 
     <script>
         function openModal(src) {
-            document.getElementById("modal-img").src = src;
-            document.getElementById("modal").style.display = "flex";
+            document.getElementById('modal-img').src = src;
+            document.getElementById('modal').style.display = 'flex';
         }
 
         function closeModal() {
-            document.getElementById("modal").style.display = "none";
+            document.getElementById('modal').style.display = 'none';
         }
     </script>
 

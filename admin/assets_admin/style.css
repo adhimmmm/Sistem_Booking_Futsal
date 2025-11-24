@@ -1,0 +1,148 @@
+/* admin/assets_admin/style.css */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #0b0e14;
+    color: #e6eef8
+}
+
+.admin-top {
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: #0f1720;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03)
+}
+
+.brand {
+    font-weight: 700
+}
+
+.actions a {
+    color: #cfe6ff;
+    text-decoration: none;
+    margin-left: 10px
+}
+
+.admin-container {
+    max-width: 1100px;
+    margin: 20px auto;
+    padding: 18px
+}
+
+.stats {
+    display: flex;
+    gap: 12px;
+    margin: 12px 0
+}
+
+.stat {
+    background: linear-gradient(90deg, #0b1220, #08121a);
+    padding: 18px;
+    border-radius: 8px;
+    flex: 1;
+    text-align: center
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px
+}
+
+.table thead th {
+    background: #061022;
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    font-weight: 600
+}
+
+.table tbody td {
+    padding: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03)
+}
+
+.btn {
+    background: #0066ff;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer
+}
+
+.btn-danger {
+    background: #d9534f
+}
+
+.btn-sm {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 6px 8px;
+    border-radius: 6px;
+    color: #cfe6ff;
+    text-decoration: none
+}
+
+.admin-login-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #020617, #06143a)
+}
+
+.admin-login-card {
+    background: #0b1220;
+    padding: 28px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    width: 360px
+}
+
+.admin-login-card h2 {
+    color: #fff;
+    margin-bottom: 12px
+}
+
+.admin-login-card label {
+    display: block;
+    color: #dbeefe;
+    margin-bottom: 10px
+}
+
+.admin-login-card input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.02);
+    color: #fff
+}
+
+.alert {
+    background: #2b0f0f;
+    color: #ffe0e0;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 12px
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 18px
+}
+
+.no-file {
+    background: #111420;
+    padding: 18px;
+    border-radius: 8px;
+    color: #9fb2d9
+}

@@ -19,7 +19,6 @@ $res = mysqli_query($conn, "SELECT b.*, l.nama_lapangan FROM booking b LEFT JOIN
 </head>
 
 <body>
-    <?php include 'nav_admin.php'; ?>
     <div class="admin-container">
         <h1>Dashboard</h1>
         <div class="stats">

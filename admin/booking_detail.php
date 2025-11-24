@@ -44,6 +44,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include 'nav_admin.php'; ?>
     <div class="admin-container">
         <h2>Detail Booking #<?= intval($booking['id']) ?></h2>
+
+        <?php if (isset($_GET['ok']) && $_GET['ok'] === 'validated'): ?>
+            <div class="alert" style="background:var(--success-color);">Booking berhasil divalidasi.</div>
+        <?php elseif (isset($_GET['ok']) && $_GET['ok'] === 'rejected'): ?>
+            <div class="alert">Booking berhasil ditolak.</div>
+        <?php endif; ?>
+
         <div class="detail-grid">
             <div>
                 <p><strong>Nama:</strong> <?= htmlspecialchars($booking['nama_pemesan']) ?></p>
@@ -52,18 +59,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p><strong>Tanggal:</strong> <?= htmlspecialchars($booking['tanggal_booking']) ?></p>
                 <p><strong>Jam:</strong> <?= htmlspecialchars($booking['jam_mulai'] . ' - ' . $booking['jam_selesai']) ?></p>
                 <p><strong>Total:</strong> Rp <?= number_format($booking['total_harga']) ?></p>
-                <p><strong>Status:</strong> <?= htmlspecialchars($booking['status']) ?></p>
+                <p><strong>Status:</strong> <span class="badge badge-<?= $booking['status'] == 'valid' ? 'valid' : ($booking['status'] == 'pending' ? 'pending' : 'reject') ?>"><?= htmlspecialchars($booking['status']) ?></span></p>
                 <p><strong>Catatan Admin:</strong> <?= htmlspecialchars($booking['admin_note'] ?? '-') ?></p>
                 <p><strong>Dibuat:</strong> <?= htmlspecialchars($booking['created_at']) ?></p>
-                <p>
-                    <a class="btn-sm" href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $booking['nomor_wa']) ?>?text=Halo%20<?= rawurlencode($booking['nama_pemesan']) ?>%2C%20ini%20admin%20lapangan.%20Terkait%20booking%20Anda%20pada%20<?= rawurlencode($booking['tanggal_booking']) ?>%20jam%20<?= rawurlencode($booking['jam_mulai']) ?>." target="_blank">Hubungi via WA</a>
+                <p style="margin-top: 15px;">
+                    <a class="btn" style="background:var(--wa-color);" href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $booking['nomor_wa']) ?>?text=Halo%20<?= rawurlencode($booking['nama_pemesan']) ?>%2C%20ini%20admin%20lapangan.%20Terkait%20booking%20Anda%20pada%20<?= rawurlencode($booking['tanggal_booking']) ?>%20jam%20<?= rawurlencode($booking['jam_mulai']) ?>." target="_blank">Hubungi via WA</a>
                 </p>
             </div>
             <div>
                 <p><strong>Bukti Pembayaran:</strong></p>
                 <?php if (!empty($booking['bukti_pembayaran']) && file_exists(__DIR__ . '/../' . $booking['bukti_pembayaran'])): ?>
                     <a href="../<?= htmlspecialchars($booking['bukti_pembayaran']) ?>" target="_blank">
-                        <img src="../<?= htmlspecialchars($booking['bukti_pembayaran']) ?>" style="max-width:100%; border-radius:6px; box-shadow: 0 6px 20px rgba(0,0,0,0.5);">
+                        <img src="../<?= htmlspecialchars($booking['bukti_pembayaran']) ?>" style="max-width:100%; border-radius:6px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
                     </a>
                 <?php else: ?>
                     <div class="no-file">Tidak ada bukti terupload</div>
@@ -71,11 +78,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-        <hr style="margin:18px 0; border-color: rgba(255,255,255,0.04);">
+        <hr>
 
         <form method="POST" action="">
+            <h3>Aksi Admin</h3>
             <label>Catatan untuk pemesan (opsional)
-                <textarea name="note" rows="3" style="width:100%; padding:8px; border-radius:6px;"></textarea>
+                <textarea name="note" rows="3"></textarea>
             </label>
 
             <div style="display:flex; gap:10px; margin-top:12px;">

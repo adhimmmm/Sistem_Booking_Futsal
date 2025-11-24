@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $sql = "INSERT INTO lapangan (nama_lapangan, deskripsi, harga_per_jam, status, created_at) VALUES ('$nama', '$des', $harga, '$status', NOW())";
     if (mysqli_query($conn, $sql)) {
-        header("Location: lapangan_list.php");
+        header("Location: lapangan_list.php?ok=tambah");
         exit;
     } else $msg = "Gagal: " . mysqli_error($conn);
 }
@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <?php include 'nav_admin.php'; ?>
     <div class="admin-container">
+        <h2>Tambah Lapangan Baru</h2>
         <?php if ($msg): ?><div class="alert"><?= $msg ?></div><?php endif; ?>
         <form method="POST">
             <label>Nama Lapangan

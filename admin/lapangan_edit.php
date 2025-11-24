@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $status = in_array($_POST['status'], ['aktif', 'nonaktif']) ? $_POST['status'] : 'aktif';
     $sql = "UPDATE lapangan SET nama_lapangan='$nama', deskripsi='$des', harga_per_jam=$harga, status='$status' WHERE id=$id";
     if (mysqli_query($conn, $sql)) {
-        header("Location: lapangan_list.php");
+        header("Location: lapangan_edit.php?id=$id&ok=1");
         exit;
     } else $msg = "Gagal: " . mysqli_error($conn);
 }
@@ -40,7 +40,11 @@ if (!$row) {
 <body>
     <?php include 'nav_admin.php'; ?>
     <div class="admin-container">
+        <h2>Edit Lapangan: <?= htmlspecialchars($row['nama_lapangan']) ?></h2>
         <?php if ($msg): ?><div class="alert"><?= $msg ?></div><?php endif; ?>
+        <?php if (isset($_GET['ok']) && $_GET['ok'] == '1'): ?>
+            <div class="alert" style="background:var(--success-color);">Lapangan berhasil diupdate.</div>
+        <?php endif; ?>
         <form method="POST">
             <label>Nama Lapangan
                 <input type="text" name="nama_lapangan" required value="<?= htmlspecialchars($row['nama_lapangan']) ?>">

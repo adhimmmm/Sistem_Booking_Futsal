@@ -42,7 +42,15 @@ $q = mysqli_query($conn, "SELECT b.*, l.nama_lapangan FROM booking b LEFT JOIN l
                         <td><?= htmlspecialchars($r['tanggal_booking']) ?></td>
                         <td><?= htmlspecialchars($r['jam_mulai'] . ' - ' . $r['jam_selesai']) ?></td>
                         <td>Rp <?= number_format($r['total_harga']) ?></td>
-                        <td><?= htmlspecialchars($r['status']) ?></td>
+                        <td>
+                            <?php if ($r['status'] == 'pending'): ?>
+                                <span class="badge badge-pending">Pending</span>
+                            <?php elseif ($r['status'] == 'valid'): ?>
+                                <span class="badge badge-valid">Valid</span>
+                            <?php else: ?>
+                                <span class="badge badge-reject"><?= htmlspecialchars($r['status']) ?></span>
+                            <?php endif; ?>
+                        </td>
                         <td><a class="btn-sm" href="booking_detail.php?id=<?= $r['id'] ?>">Detail</a></td>
                     </tr>
                 <?php endwhile; ?>

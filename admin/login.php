@@ -1,7 +1,5 @@
 <?php
-// admin/login.php (debug-ready)
-// NOTE: Jalankan debug hanya di lingkungan development, lalu kembalikan ke versi production.
-
+// admin/login.php
 session_start();
 include '../includes/db.php';
 
@@ -10,7 +8,7 @@ $msg = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = isset($_POST['username']) ? trim($_POST['username']) : '';
-    $pass = isset($_POST['password']) ? $_POST['password'] : ''; // jangan trim dulu kalau mau lihat whitespace dari user
+    $pass = isset($_POST['password']) ? $_POST['password'] : '';
 
     if ($user === '' || $pass === '') {
         $msg = "Username & password wajib diisi.";
@@ -25,22 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $res = mysqli_stmt_get_result($stmt);
 
             if ($row = mysqli_fetch_assoc($res)) {
-
-                // Debug output (hanya jika debug aktif)
-                if ($DEBUG) {
-                    echo "<pre>DEBUG INFO\n";
-                    echo "Input username : [" . $user . "]\n";
-                    echo "Input password : [" . $pass . "]\n";
-                    echo "Len input pw    : " . strlen($pass) . "\n";
-                    echo "DB password     : [" . $row['password'] . "]\n";
-                    echo "Len DB pw       : " . strlen($row['password']) . "\n";
-                    // show ordinals for trailing whitespace if ada
-                    echo "Input bytes     : ";
-                    foreach (str_split($pass) as $c) { echo ord($c) . ' '; }
-                    echo "\nDB bytes        : ";
-                    foreach (str_split($row['password']) as $c) { echo ord($c) . ' '; }
-                    echo "\n</pre>";
-                }
 
                 // 3 cara cek (berurut):
                 // A. cek exact (case-sensitive, termasuk whitespace)
@@ -69,7 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     $msg = "Password salah.";
                 }
-
             } else {
                 $msg = "User tidak ditemukan.";
             }
@@ -81,11 +62,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="utf-8">
     <title>Admin Login - Futsal Booking</title>
     <link rel="stylesheet" href="assets_admin/style.css">
 </head>
+
 <body class="admin-login-body">
     <div class="admin-login-card">
         <h2>Admin Login</h2>
@@ -99,9 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </label>
             <button type="submit" class="btn">Login</button>
         </form>
-        <?php if ($DEBUG): ?>
-            <p style="color:darkred">DEBUG mode aktif. Hentikan debug setelah selesai.</p>
-        <?php endif; ?>
     </div>
 </body>
+
 </html>

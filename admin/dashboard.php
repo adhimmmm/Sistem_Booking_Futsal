@@ -33,7 +33,7 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
         mysqli_query($conn, "DELETE FROM booking WHERE id = $id");
         mysqli_query($conn, "DELETE FROM jadwal_terblokir WHERE booking_id = $id");
     }
-    header("Location: dashboard.php");
+    header("Location: dashboard.php?ok=" . $_GET['action']);
     exit;
 }
 
@@ -58,62 +58,29 @@ $res = mysqli_query($conn, $sql);
     <meta charset="utf-8">
     <title>Admin Dashboard - Futsal Booking</title>
     <link rel="stylesheet" href="assets_admin/style.css">
-    <style>
-        /* small custom overrides for table actions */
-        .action-group a {
-            margin-right: 6px;
-            display: inline-block;
-            margin-bottom: 4px;
-        }
-
-        .preview-btn {
-            padding: 6px 10px;
-            border-radius: 4px;
-            background: #0ea5e9;
-            color: #fff;
-            text-decoration: none;
-        }
-
-        .badge {
-            padding: 6px 8px;
-            border-radius: 6px;
-            color: #fff;
-            font-weight: 600;
-            font-size: 13px;
-        }
-
-        .badge-pending {
-            background: #f59e0b;
-        }
-
-        .badge-valid {
-            background: #10b981;
-        }
-
-        .badge-reject {
-            background: #ef4444;
-        }
-
-        .filter-links a {
-            margin-right: 8px;
-            text-decoration: none;
-            color: #0369a1;
-        }
-    </style>
 </head>
 
 <body>
     <div class="admin-top">
         <div class="brand">Admin Panel</div>
         <div class="actions">
-            <a href="../index.php" class="btn-sm">Lihat Website</a>
-            <a href="lapangan_list.php" class="btn-sm">Lapangan</a>
-            <a href="logout.php" class="btn-sm" style="background:#dc2626;color:white;">Logout</a>
+            <a href="../index.php">Lihat Website</a>
+            <a href="lapangan_list.php">Lapangan</a>
+            <a href="logout.php" class="btn-danger">Logout</a>
         </div>
     </div>
 
     <div class="admin-container">
         <h1>Dashboard</h1>
+
+        <?php if (isset($_GET['ok'])): ?>
+            <?php if ($_GET['ok'] == 'valid'): ?>
+                <div class="alert" style="background:var(--success-color);">Booking berhasil divalidasi.</div>
+            <?php elseif ($_GET['ok'] == 'delete'): ?>
+                <div class="alert">Booking berhasil dihapus.</div>
+            <?php endif; ?>
+        <?php endif; ?>
+
         <div class="stats">
             <div class="stat">Pending<br><strong><?= $tot_pending ?></strong></div>
             <div class="stat">Valid<br><strong><?= $tot_valid ?></strong></div>
@@ -172,12 +139,11 @@ $res = mysqli_query($conn, $sql);
                             endif; ?>
                         </td>
                         <td class="action-group">
-                            <a class="btn-sm" href="dashboard.php?action=valid&id=<?= $r['id'] ?>" onclick="return confirm('Setujui booking?')">Valid</a>
-                            <a class="btn-sm" href="dashboard.php?action=pending&id=<?= $r['id'] ?>">Pending</a>
-                            <a class="btn-sm" style="background:#dc2626;color:#fff" href="dashboard.php?action=delete&id=<?= $r['id'] ?>" onclick="return confirm('Hapus booking ini?')">Delete</a>
+                            <a class="btn-sm" style="background:var(--success-color);" href="dashboard.php?action=valid&id=<?= $r['id'] ?>" onclick="return confirm('Setujui booking?')">Valid</a>
+                            <a class="btn-sm" style="background:var(--warning-color);" href="dashboard.php?action=pending&id=<?= $r['id'] ?>">Pending</a>
+                            <a class="btn-sm btn-danger" href="dashboard.php?action=delete&id=<?= $r['id'] ?>" onclick="return confirm('Hapus booking ini?')">Hapus</a>
 
-                            <!-- WA link: nomor diharapkan format 628xxxxxxxx -->
-                            <a class="btn-sm" style="background:#0ea5e9;color:#fff" target="_blank" href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $r['nomor_wa']) ?>?text=Halo%20<?= rawurlencode($r['nama_pemesan']) ?>%2C%20mengenai%20booking%20anda%20pada%20<?= rawurlencode($r['tanggal_booking']) ?>%20<?= rawurlencode($r['jam_mulai'] . '-' . $r['jam_selesai']) ?>">WA</a>
+                            <a class="btn-sm" style="background:var(--primary-color);" target="_blank" href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $r['nomor_wa']) ?>?text=Halo%20<?= rawurlencode($r['nama_pemesan']) ?>%2C%20mengenai%20booking%20anda%20pada%20<?= rawurlencode($r['tanggal_booking']) ?>%20<?= rawurlencode($r['jam_mulai'] . '-' . $r['jam_selesai']) ?>">WA</a>
                         </td>
                     </tr>
                 <?php endwhile; ?>
@@ -185,7 +151,6 @@ $res = mysqli_query($conn, $sql);
         </table>
     </div>
 
-    <!-- Modal -->
     <div id="modal" class="modal" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <img id="modal-img" src="" alt="Bukti">

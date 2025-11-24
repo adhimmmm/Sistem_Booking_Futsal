@@ -91,7 +91,10 @@ $total = intval(round($hours * $harga));
 $sql = "INSERT INTO booking (nama_pemesan, nomor_wa, lapangan_id, tanggal_booking, jam_mulai, jam_selesai, total_harga, bukti_pembayaran, status, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())";
 $stmt = mysqli_prepare($conn, $sql);
-mysqli_stmt_bind_param($stmt, "sissssds", $nama, $wa, $lapangan_id, $tanggal, $jam_mulai, $jam_selesai, $total, $bukti_path);
+
+// PERBAIKAN: Mengubah string format dari "sissssds" menjadi "ssisssis"
+mysqli_stmt_bind_param($stmt, "ssisssis", $nama, $wa, $lapangan_id, $tanggal, $jam_mulai, $jam_selesai, $total, $bukti_path);
+
 $ok = mysqli_stmt_execute($stmt);
 if ($ok) {
     header("Location: booking_success.php");

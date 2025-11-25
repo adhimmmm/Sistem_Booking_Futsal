@@ -89,28 +89,27 @@ include 'includes/db.php';
 
         <div class="stadium-grid">
             <?php
-            $q = mysqli_query($conn, "SELECT * FROM lapangan WHERE status='aktif' ORDER BY nama_lapangan ASC");
+                            $q = mysqli_query($conn, "SELECT * FROM lapangan WHERE status='aktif' ORDER BY nama_lapangan ASC");
 
-            // Array of cool placeholder images for futsal
-            $images = [
-                'https://images.unsplash.com/photo-1602992709295-cfb8f52a2656?auto=format&fit=crop&w=800&q=80',
-                'https://images.unsplash.com/photo-1549880338-65ddcdfd017b?auto=format&fit=crop&w=800&q=80',
-                'https://images.unsplash.com/photo-1588764042898-1e4a6825c34e?auto=format&fit=crop&w=800&q=80',
-                'https://images.unsplash.com/photo-1574044195191-4e7826315570?auto=format&fit=crop&w=800&q=80',
-                'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80'
-            ];
+                            $i = 0;
+                            while ($row = mysqli_fetch_assoc($q)) {
+                                $harga = number_format($row['harga_per_jam'], 0, ',', '.');
+                                $desc_snippet = substr($row['deskripsi'], 0, 100);
 
-            $i = 0;
-            while ($row = mysqli_fetch_assoc($q)) {
-                $harga = number_format($row['harga_per_jam'], 0, ',', '.');
-                $desc_snippet = substr($row['deskripsi'], 0, 100);
-                if (strlen($row['deskripsi']) > 100) $desc_snippet .= '...';
+                                if (strlen($row['deskripsi']) > 100) {
+                                    $desc_snippet .= '...';
+                                }
+
+                                // Ambil gambar dari database
+                                $gambar = !empty($row['foto'])
+                                    ? $row['foto']
+                                    : 'assets/default_lapangan.jpg';
 
                 echo '
             <div class="stadium-card">
-                <div class="stadium-thumb" style="background-image:url(\'' . $images[$i % count($images)] . '\')">
-                    <span class="stadium-badge">Premium</span>
-                </div>
+                <div class="stadium-thumb" style="background-image:url(\'' . $gambar . '\')">
+            <span class="stadium-badge">Premium</span>
+        </div>
                 <div class="stadium-body">
                     <h3>' . htmlspecialchars($row['nama_lapangan']) . '</h3>
                     <div class="stadium-rating">

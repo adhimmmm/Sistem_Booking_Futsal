@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="utf-8">
     <title>Admin Login - Futsal Booking</title>
-    <link rel="stylesheet" href="assets_admin/style.css">
+    <link rel="stylesheet" href="css_admin/style.css">
 </head>
 
 <body class="admin-login-body">

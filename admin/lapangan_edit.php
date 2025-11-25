@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             WHERE id=$id";
 
     if (mysqli_query($conn, $sql)) {
-        header("Location: lapangan_edit.php?id=$id&ok=1");
+        header("Location: lapangan_list.php?updated=1");
         exit;
     } else {
         $msg = "Gagal: " . mysqli_error($conn);

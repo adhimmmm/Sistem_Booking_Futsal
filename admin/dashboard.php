@@ -134,10 +134,10 @@ $res = mysqli_query($conn, $sql);
                         class="filter-tab <?= $statusFilter === 'valid' ? 'active' : '' ?>">
                         Valid (<?= $tot_valid ?>)
                     </a>
-                    <a href="dashboard.php?status=ditolak<?= !empty($searchQuery) ? '&search=' . urlencode($searchQuery) : '' ?>"
+                    <!-- <a href="dashboard.php?status=ditolak<?= !empty($searchQuery) ? '&search=' . urlencode($searchQuery) : '' ?>"
                         class="filter-tab <?= $statusFilter === 'ditolak' ? 'active' : '' ?>">
                         Ditolak
-                    </a>
+                    </a> -->
                 </div>
             </div>
         </div>

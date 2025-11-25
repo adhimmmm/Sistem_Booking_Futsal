@@ -92,9 +92,9 @@ body {
     position: relative;
 }
 
-.nav-links a:hover {
+/* .nav-links a:hover {
     color: var(--primary);
-}
+} */
 
 .nav-links a:not(.btn-outline):hover::after {
     content: '';

@@ -89,21 +89,21 @@ include 'includes/db.php';
 
         <div class="stadium-grid">
             <?php
-                            $q = mysqli_query($conn, "SELECT * FROM lapangan WHERE status='aktif' ORDER BY nama_lapangan ASC");
+            $q = mysqli_query($conn, "SELECT * FROM lapangan WHERE status='aktif' ORDER BY nama_lapangan ASC");
 
-                            $i = 0;
-                            while ($row = mysqli_fetch_assoc($q)) {
-                                $harga = number_format($row['harga_per_jam'], 0, ',', '.');
-                                $desc_snippet = substr($row['deskripsi'], 0, 100);
+            $i = 0;
+            while ($row = mysqli_fetch_assoc($q)) {
+                $harga = number_format($row['harga_per_jam'], 0, ',', '.');
+                $desc_snippet = substr($row['deskripsi'], 0, 100);
 
-                                if (strlen($row['deskripsi']) > 100) {
-                                    $desc_snippet .= '...';
-                                }
+                if (strlen($row['deskripsi']) > 100) {
+                    $desc_snippet .= '...';
+                }
 
-                                // Ambil gambar dari database
-                                $gambar = !empty($row['foto'])
-                                    ? $row['foto']
-                                    : 'assets/default_lapangan.jpg';
+                // Ambil gambar dari database
+                $gambar = !empty($row['foto'])
+                    ? $row['foto']
+                    : 'assets/default_lapangan.jpg';
 
                 echo '
             <div class="stadium-card">
@@ -154,37 +154,37 @@ include 'includes/db.php';
         </div>
         <div class="gallery-grid">
             <div class="gallery-item">
-                <img src="https://images.unsplash.com/photo-1602992709295-cfb8f52a2656?auto=format&fit=crop&w=800&q=80" alt="Lapangan Futsal Indoor">
+                <img src="https://images.pexels.com/photos/15818644/pexels-photo-15818644.jpeg?_gl=1*wh5nbl*_ga*NzQ4NjI4NDcwLjE3NjQwNjEyODc.*_ga_8JE65Q40S6*czE3NjQwNjEyODckbzEkZzEkdDE3NjQwNjE1NTkkajMxJGwwJGgw" alt="Lapangan Futsal Indoor">
                 <div class="gallery-overlay">
                     <span>Lapangan Indoor Premium</span>
                 </div>
             </div>
             <div class="gallery-item">
-                <img src="https://images.unsplash.com/photo-1574044195191-4e7826315570?auto=format&fit=crop&w=800&q=80" alt="Fasilitas Lengkap">
+                <img src="https://kontainerindonesia.co.id/blog/wp-content/uploads/2025/06/Jual-Fasilitas-WC-Portable-Camping-Cepat-Terjangkau-4-e1750319270707.webp" alt="Fasilitas Lengkap">
                 <div class="gallery-overlay">
                     <span>Fasilitas Lengkap</span>
                 </div>
             </div>
             <div class="gallery-item">
-                <img src="https://images.unsplash.com/photo-1549880338-65ddcdfd017b?auto=format&fit=crop&w=800&q=80" alt="Suasana Bermain">
+                <img src="https://cdn.rri.co.id/berita/Cirebon/o/1721482810250-IMG-20240720-WA0046/369hhpieb5g4zis.jpeg" alt="Suasana Bermain">
                 <div class="gallery-overlay">
                     <span>Suasana Bermain Nyaman</span>
                 </div>
             </div>
             <div class="gallery-item">
-                <img src="https://images.unsplash.com/photo-1588764042898-1e4a6825c34e?auto=format&fit=crop&w=800&q=80" alt="Ruang Ganti">
+                <img src="https://png.pngtree.com/thumb_back/fh260/background/20240909/pngtree-blue-lockers-and-wooden-bench-in-a-modern-locker-room-image_16143002.jpg" alt="Ruang Ganti">
                 <div class="gallery-overlay">
                     <span>Ruang Ganti Bersih</span>
                 </div>
             </div>
             <div class="gallery-item">
-                <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80" alt="Pencahayaan Optimal">
+                <img src="https://admin.saraga.id/storage/images/whatsapp-image-2023-12-04-at-091219_1701656012.jpeg" alt="Pencahayaan Optimal">
                 <div class="gallery-overlay">
                     <span>Pencahayaan Optimal</span>
                 </div>
             </div>
             <div class="gallery-item">
-                <img src="https://images.unsplash.com/photo-1589487391730-58f20eb2c308?auto=format&fit=crop&w=800&q=80" alt="Area Parkir">
+                <img src="https://img.freepik.com/free-photo/horizontal-picture-car-parking-underground-garage-interior-with-neon-lights-autocars-parked-buildings-urban-constructions-space-transportation-vehicle-night-city-concept_343059-3077.jpg" alt="Area Parkir">
                 <div class="gallery-overlay">
                     <span>Area Parkir Luas</span>
                 </div>
@@ -244,10 +244,10 @@ include 'includes/db.php';
             <h3>Didukung oleh Mitra Terbaik</h3>
         </div>
         <div class="sponsor-logos">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/2/20/Coca-Cola_logo.svg" alt="Coca Cola">
+            <img src="https://www.ortuseight.com/asset/dist/assets/images/favicon.png" alt="Ortuseight">
             <img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/Logo_NIKE.svg" alt="Nike">
-            <img src="https://upload.wikimedia.org/wikipedia/en/3/37/Adidas_logo.svg" alt="Adidas">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Ford_logo_flat.svg" alt="Ford">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Adidas_Logo.svg/1088px-Adidas_Logo.svg.png?20240107104015" alt="Adidas">
+            <img src="https://mills.co.id/cdn/shop/files/LOGO-MILLS-PRIMARY-512x512.png?v=1730539406&width=800" alt="Mills">
         </div>
     </section>
 
@@ -364,11 +364,6 @@ include 'includes/db.php';
             <div class="footer-col">
                 <h4 class="footer-brand">FUTSAL<span>BOOKING</span></h4>
                 <p>Platform booking lapangan futsal terpercaya dengan sistem yang mudah dan transparan.</p>
-                <div class="social-links">
-                    <a href="#" aria-label="Facebook">📘</a>
-                    <a href="#" aria-label="Instagram">📷</a>
-                    <a href="#" aria-label="Twitter">🐦</a>
-                </div>
             </div>
 
             <div class="footer-col">

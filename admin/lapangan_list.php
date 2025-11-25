@@ -103,8 +103,8 @@ $res = mysqli_query($conn, "SELECT * FROM lapangan ORDER BY id DESC");
                             </td>
                             <td>
                                 <div class="action-group">
-                                    <a href="lapangan_edit.php?id=<?= $r['id'] ?>" class="btn-sm" style="background:var(--primary);color:white;border:none;">✏️ Edit</a>
-                                    <a href="?delete=<?= $r['id'] ?>" onclick="return confirm('Hapus lapangan ini?\n\nGambar dan semua data terkait akan dihapus.')" class="btn-sm btn-danger">🗑️ Hapus</a>
+                                    <a href="lapangan_edit.php?id=<?= $r['id'] ?>" class="btn-sm" style="background:var(--primary);color:white;border:none;">Edit</a>
+                                    <a href="?delete=<?= $r['id'] ?>" onclick="return confirm('Hapus lapangan ini?\n\nGambar dan semua data terkait akan dihapus.')" class="btn-sm btn-danger">Hapus</a>
                                 </div>
                             </td>
                         </tr>
